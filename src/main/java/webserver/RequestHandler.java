@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import db.DataBase;
 import model.User;
@@ -30,6 +31,10 @@ public class RequestHandler extends Thread {
             HttpRequest request = new HttpRequest(in);
             HttpResponse response = new HttpResponse(out);
 
+            if(request.getCookies().getCookie("JSESSIONID") == null) {
+                response.addHeader("Set-Cookie", "JSESSIONID=" + UUID.randomUUID());
+            }
+
             Controller controller = RequestMapping.getController(request.getPath());
             if(controller == null) {
                 String path = getDefaultPath(request.getPath());
@@ -43,9 +48,7 @@ public class RequestHandler extends Thread {
     }
 
     private String getDefaultPath(String path) {
-        if (path.equals("/")) {
-            return "index.html";
-        }
+        if (path.equals("/")) { return "index.html"; }
         return path;
     }
 
